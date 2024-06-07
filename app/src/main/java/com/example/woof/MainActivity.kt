@@ -57,9 +57,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.woof.data.Dog
-import com.example.woof.data.dogs
+
 import com.example.woof.ui.theme.WoofTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.woof.data.DogUiState
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,15 +82,20 @@ class MainActivity : ComponentActivity() {
  * Composable that displays an app bar and a list of dogs.
  */
 @Composable
-fun WoofApp() {
+fun WoofApp(
+    viewModel: DogViewModel = viewModel()
+) {
+    val uiState by viewModel.dogUiState.collectAsState()
     Scaffold(
         topBar = {
             WoofTopAppBar()
         }
     ) { it ->
         LazyColumn(contentPadding = it) {
-            items(dogs) {
+            items(viewModel.updateDogList()) {
                 DogItem(
+                    viewModel = viewModel,
+                    uiState = uiState,
                     dog = it,
                     modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
                 )
@@ -108,11 +114,11 @@ fun WoofApp() {
 fun DogItem(
     dog: Dog,
     modifier: Modifier = Modifier,
-    viewModel: DogViewModel = viewModel()
+    viewModel: DogViewModel,
+    uiState: DogUiState
 ) {
-
-    val uiState by viewModel.dogUiState.collectAsState()
     val expanded = uiState.expandedDogName == dog.name
+
     Card(
         modifier = modifier
     ) {
