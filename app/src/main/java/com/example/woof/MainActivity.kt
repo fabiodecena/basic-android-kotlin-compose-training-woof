@@ -46,10 +46,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,6 +59,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.woof.data.Dog
 import com.example.woof.data.dogs
 import com.example.woof.ui.theme.WoofTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,9 +107,12 @@ fun WoofApp() {
 @Composable
 fun DogItem(
     dog: Dog,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: DogViewModel = viewModel()
 ) {
-    var expanded by remember { mutableStateOf(false) }
+
+    val uiState by viewModel.dogUiState.collectAsState()
+    val expanded = uiState.expandedDogName == dog.name
     Card(
         modifier = modifier
     ) {
@@ -133,7 +135,7 @@ fun DogItem(
                 Spacer(Modifier.weight(1f))
                 DogItemButton(
                     expanded = expanded,
-                    onClick = { expanded = !expanded },
+                    onClick = { viewModel.toggleExpanded(dog.name) },
                 )
             }
             if (expanded) {
